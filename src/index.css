@@ -458,3 +458,5 @@ h1 span { color: #ffd700; text-shadow: 0 0 20px #ffd70033; }
   .demo-mode .joystick { width: min(72vw, max(140px, calc(100dvh - 435px))); }
   .demo-mode .heading-tag, .demo-mode .hand-status { display: none; }
 }
+
+.release-label { color: #f4d567; text-align: right; }

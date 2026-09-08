@@ -86,7 +86,7 @@ export default function App() {
             <section ref={demo.ref} className={`control-interface ${demo.fullscreen ? 'demo-mode' : ''}`} aria-label="Live robot controls"
               onContextMenu={e => e.preventDefault()}>
               <div className="control-toolbar">
-                <div><span className="eyebrow demo-title">VEERA BOT CONTROL CENTER</span>{connection}</div>
+                <div><span className="eyebrow demo-title">VEERA BOT CONTROL CENTER · v3.1</span>{connection}</div>
                 <button className="fullscreen-button" onClick={() => void demo.toggle()}>{demo.fullscreen ? <Minimize size={17} /> : <Maximize size={17} />}{demo.fullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</button>
               </div>
               {demo.message && <p role="status" className="fullscreen-notice">{demo.message}</p>}

@@ -75,11 +75,11 @@ test('preserves predefined sections and file-based logo without visitor upload c
   await page.getByRole('button', { name: 'Close uses', exact: true }).first().click();
   await expect(page.locator('textarea, audio, input[type=\"file\"]')).toHaveCount(0);
   await expect(page.getByText('Developed By', { exact: false })).toContainText('Team DAJ');
-  await expect(page.locator('.brand-logo')).toHaveAttribute('src', '/logo.png');
+  await expect(page.locator('.brand-logo')).toHaveAttribute('src', './logo.png');
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
   await expect(page.getByRole('button', { name: /upload logo|reset/i })).toHaveCount(0);
   await page.reload();
-  await expect(page.locator('.brand-logo')).toHaveAttribute('src', '/logo.png');
+  await expect(page.locator('.brand-logo')).toHaveAttribute('src', './logo.png');
 });
 
 test('left/right steering, release, keyboard and blur stops', async ({ page }) => {

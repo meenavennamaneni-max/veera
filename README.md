@@ -2,6 +2,30 @@
 
 Updated from the React/TypeScript website in `A Veera.zip`, keeping the original black-and-gold styling, robot avatar, Introduction, Uses, Bluetooth panel, status panel and command log.
 
+## Which download to use
+
+**`Veera-Bot-v3.1-Ready-To-Host.zip` is the deployment package.** It contains the compiled `index.html` and `logo.png` directly at its root, with no source entry page to confuse with the built page. Extract it into a **new empty folder** and replace the current deployed site with those files. Do not extract it over an old download and then open a different `index.html`.
+
+The page title includes **v3.1**, and the header says **VEERA v3.1 / TRIGGER-ONLY CONTROLS**. If those labels are missing, you are not viewing this release. Changes in the GitHub working branch do not automatically replace an existing live deployment. Redeploy the new build, then refresh any browser/hosting cache. No service worker is included by this project.
+
+`Veera-Bot-Updated.zip` remains available as the full source + built-website package for developers; its deployable files are inside `website/`, not its root source `index.html`.
+
+## Replace the live Netlify deployment
+
+The live site `https://veerabot.netlify.app` was checked and was still serving the older controls (Wave, Raise, Lower, Stop hand). Updating a GitHub branch or downloading a ZIP does not replace that deployment automatically.
+
+For a manual Netlify deployment:
+
+1. Download `Veera-Bot-v3.1-Ready-To-Host.zip` and extract it into a fresh folder.
+2. Sign in to your Netlify dashboard and open the **existing project** serving `veerabot.netlify.app`.
+3. Open **Deploys** and use the manual deploy/upload area. Upload the extracted folder containing `index.html` and `logo.png` directly inside it. Do not upload the source project or the old `A Veera.zip`.
+4. Wait for Netlify to mark the deployment **Published**, then reload the live URL. Ensure production publishing is not locked to an older deployment.
+5. Confirm the header says **VEERA v3.1 / TRIGGER-ONLY CONTROLS**, there is only **Wave Hand**, and Introduction no longer opens a popup. `https://veerabot.netlify.app/VERSION.txt` will also identify this manual package.
+
+If your Netlify project is configured for Git-based deployment instead, use `npm run build` as the build command and `dist` as the publish directory. `netlify.toml` contains those settings. Ensure Netlify builds the revision containing these changes; this session's code is on `arena/01a0813d-veera`, not the original `main` branch. A Git integration still targeting the unchanged `main` branch will not use this update.
+
+No Netlify production deployment has been performed by this repository update. The site owner must publish the files or configure the appropriate Git deployment.
+
 ## Run the website
 
 Requires Node.js 22.12+.
@@ -22,10 +46,10 @@ Deploy the contents of `dist/` to an HTTPS static host. The downloadable ZIP als
 ## Logo
 
 - Replace **`public/logo.png`** to change the shared/deployed logo, then rebuild.
-- Public URL: **`/logo.png`**.
+- The header and favicon use **`./logo.png`**, resolved next to the deployed page, including on subdirectory hosting.
 - For the prebuilt website, replace **`website/logo.png`** before uploading it.
 - Use your file explorer to replace the image, keeping the filename **`logo.png`**. There are no logo upload/reset controls on the website, and previously saved browser logo overrides are ignored. If an old image is cached after replacement, refresh the browser cache.
-- The existing `public/images/logo.png` is retained from the archive, but the header uses `/logo.png`.
+- The existing `public/images/logo.png` is retained from the archive, but the header uses the top-level `logo.png`.
 
 ## Controls
 
