@@ -280,12 +280,9 @@ button { touch-action: manipulation; }
 .site-shell { max-width: 1600px; padding: 0 28px; margin: auto; }
 .logo-banner { padding: 22px 26px 14px; border: 1px solid #ffd70022; border-top: 0; background: radial-gradient(ellipse at 50% 55%, #ffd7000b, transparent 65%), #020205; position: relative; }
 .brand-rail, .brand-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #a89f71; font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 2px; }
-.brand-rail span, .logo-actions, .logo-actions button { display: flex; align-items: center; gap: 8px; }
+.brand-rail span { display: flex; align-items: center; gap: 8px; }
 .brand-logo { display: block; width: 100%; height: clamp(180px, 20vw, 285px); object-fit: contain; margin: 4px auto 10px; }
 .brand-bottom { color: #8d8d9e; font-size: 10px; letter-spacing: 1.5px; }
-.logo-actions button { border: 1px solid #ffd70035; border-radius: 6px; padding: 8px 10px; color: #e9ce6b; letter-spacing: 0; font-size: 12px; }
-.logo-actions button:hover { background: #ffd70012; }
-.logo-path { color: #777787; font-size: 10px; text-align: right; margin-top: 9px; }
 .page-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 28px 0 24px; border-bottom: 1px solid #ffd70024; margin-bottom: 24px; }
 .eyebrow { display: flex; align-items: center; gap: 7px; color: #a6934e; font-family: 'Share Tech Mono', monospace; letter-spacing: 2px; font-size: 10px; margin-bottom: 9px; }
 h1 { font-size: clamp(20px, 2.2vw, 32px); font-weight: 900; letter-spacing: 1px; line-height: 1.15; font-family: 'Share Tech Mono', monospace; }
@@ -405,7 +402,6 @@ h1 span { color: #ffd700; text-shadow: 0 0 20px #ffd70033; }
   .logo-banner { padding: 14px 14px 10px; }
   .brand-rail { font-size: 9px; letter-spacing: 1px; }
   .brand-bottom { flex-direction: column; gap: 12px; }
-  .logo-path { text-align: center; font-size: 9px; }
   .brand-logo { height: 215px; }
   .page-title { padding: 23px 0 20px; margin-bottom: 20px; }
   .live-controls { grid-template-columns: 1fr; gap: 14px; }

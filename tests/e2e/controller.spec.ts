@@ -63,7 +63,8 @@ for (const mode of ['normal', 'fallback'] as const) {
   });
 }
 
-test('preserves predefined sections and uploads/reset logo without speech editor', async ({ page }) => {
+test('preserves predefined sections and file-based logo without visitor upload controls', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('veera-logo', 'data:image/png;base64,old-browser-override'));
   await page.goto('/');
   await page.getByRole('button', { name: 'Introduction Meet Veera Bot' }).click();
   await expect(page.getByRole('dialog')).toContainText('Hi, I am Veera Bot. I am developed by Devaansh, Johnson, and Abhiram.');
@@ -74,11 +75,10 @@ test('preserves predefined sections and uploads/reset logo without speech editor
   await page.getByRole('button', { name: 'Close uses', exact: true }).first().click();
   await expect(page.locator('textarea')).toHaveCount(0);
   await expect(page.getByText('Developed By', { exact: false })).toContainText('Team DAJ');
-  await page.getByLabel('Upload logo image').setInputFiles('public/logo.png');
-  await expect(page.locator('.brand-logo')).toHaveAttribute('src', /^data:image\/png/);
+  await expect(page.locator('.brand-logo')).toHaveAttribute('src', '/logo.png');
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /upload logo|reset/i })).toHaveCount(0);
   await page.reload();
-  await expect(page.locator('.brand-logo')).toHaveAttribute('src', /^data:image\/png/);
-  await page.getByRole('button', { name: 'Reset', exact: true }).click();
   await expect(page.locator('.brand-logo')).toHaveAttribute('src', '/logo.png');
 });
 

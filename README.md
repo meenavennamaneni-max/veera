@@ -24,7 +24,7 @@ Deploy the contents of `dist/` to an HTTPS static host. The downloadable ZIP als
 - Replace **`public/logo.png`** to change the shared/deployed logo, then rebuild.
 - Public URL: **`/logo.png`**.
 - For the prebuilt website, replace **`website/logo.png`** before uploading it.
-- Or use **Upload logo** at the top of the website: PNG, JPG or WebP, maximum 2 MB. This saves the image in that browser's local storage, not on a server and not for other users. Reset restores the default. Keep a copy of your image separately.
+- Use your file explorer to replace the image, keeping the filename **`logo.png`**. There are no logo upload/reset controls on the website, and previously saved browser logo overrides are ignored. If an old image is cached after replacement, refresh the browser cache.
 - The existing `public/images/logo.png` is retained from the archive, but the header uses `/logo.png`.
 
 ## Controls
@@ -69,7 +69,7 @@ npm run build
 
 Unit tests cover mixing, diagonal movement, ramping, reversal, immediate stop, heartbeats, cooldown, disconnect and queue priority/timeouts.
 
-Browser tests are included for desktop and Android-sized portrait/landscape layouts, Pointer Events multitouch, fullscreen, logo upload and disconnect behavior:
+Browser tests are included for desktop and Android-sized portrait/landscape layouts, Pointer Events multitouch, fullscreen, the fixed file-based logo and disconnect behavior:
 
 ```sh
 npx playwright install --with-deps chromium
@@ -77,4 +77,4 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-The production build and 21 unit tests passed during packaging. Browser tests could not run in the packaging environment because Chromium's system libraries were unavailable. Physical ESP32 behavior has not been tested.
+The production build and 22 unit tests passed during packaging. Browser tests could not run in the packaging environment because Chromium's system libraries were unavailable. Physical ESP32 behavior has not been tested.
