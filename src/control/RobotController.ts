@@ -1,7 +1,5 @@
-import type { RightHandAction } from '../types/robot';
-
 export type MotorSpeeds = { left: number; right: number };
-export type CommandKind = 'motor' | 'stop' | 'hand' | 'hand-stop' | 'action';
+export type CommandKind = 'motor' | 'stop' | 'hand' | 'action';
 export interface RobotTransport {
   isConnected(): boolean;
   send(payload: string, kind: CommandKind): void;
@@ -35,10 +33,10 @@ export class RobotController {
   target = { ...ZERO };
   current = { ...ZERO };
   active = false;
-  handActive = false;
+  waveRequested = false;
   handCooldownMs = 500;
   private lastHandAt = -Infinity;
-  private handStopAt = 0;
+  private waveFeedbackUntil = 0;
   constructor(private transport: RobotTransport, private now = () => performance.now()) {}
 
   setJoystick(x: number, y: number) {
@@ -52,7 +50,8 @@ export class RobotController {
       this.reset();
       return;
     }
-    if (this.handActive && this.now() >= this.handStopAt) this.stopRightHand();
+    // Request indicator only. Servo timing and completion belong entirely to the ESP32.
+    if (this.now() >= this.waveFeedbackUntil) this.waveRequested = false;
     if (!this.active) return;
     const step = 300 * clamp(deltaMs, 0, 100) / 1000;
     this.current = {
@@ -74,23 +73,24 @@ export class RobotController {
     this.transport.send('S', 'stop');
   }
 
-  moveRightHand(action: RightHandAction): boolean {
+  waveRightHand(): boolean {
     if (!this.transport.isConnected() || this.now() - this.lastHandAt < this.handCooldownMs) return false;
     this.lastHandAt = this.now();
-    this.handActive = true;
-    this.handStopAt = this.now() + 2000;
-    this.transport.send(`H:${action}\n`, 'hand');
+    this.waveRequested = true;
+    this.waveFeedbackUntil = this.now() + 2000;
+    this.transport.send('H:wave\n', 'hand');
     return true;
   }
 
-  stopRightHand() {
-    this.handActive = false;
-    this.transport.send('H:stop\n', 'hand-stop');
+  triggerIntroduction(): boolean {
+    if (!this.transport.isConnected()) return false;
+    this.transport.send('I', 'action');
+    return true;
   }
 
   reset() {
     this.active = false;
-    this.handActive = false;
+    this.waveRequested = false;
     this.target = { ...ZERO };
     this.current = { ...ZERO };
   }

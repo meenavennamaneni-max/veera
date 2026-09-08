@@ -31,14 +31,28 @@ Deploy the contents of `dist/` to an HTTPS static host. The downloadable ZIP als
 
 - Drag the large joystick: distance controls speed; horizontal motion turns by independently driving each motor pair. It is differential drive, not sideways strafing.
 - Release the controlling pointer to issue immediate STOP, bypassing acceleration/deceleration ramps.
-- A second finger can operate the right hand or emergency STOP without stealing the joystick pointer.
+- A second finger can press Wave Hand, Introduction or emergency STOP without stealing the joystick pointer.
 - STOP cancels all motion and the current gesture; release and start a new gesture to resume.
-- Right hand only: Wave, Raise, Lower, Stop hand. Configurable 200–2000 ms cooldown; Stop hand bypasses the cooldown. Hand actions auto-stop after 2 seconds.
+- Right hand only: **Wave Hand** sends `H:wave\n` once to the ESP32. The ESP32 controls the servo and the complete wave sequence. A configurable 200–2000 ms cooldown limits requests. There are no Raise, Lower or separate Stop hand controls; emergency STOP still cancels all motion. The website does not generate servo angles or send a timed hand-stop command.
 - Focus the joystick and hold arrow keys for keyboard driving. Release all arrow keys to stop. Space/Escape are emergency stops.
-- Fullscreen keeps joystick, connection status, STOP and right-hand controls onscreen. Exit Fullscreen leaves demo mode. If the browser denies fullscreen, a screen-filling in-page fallback is used.
+- Fullscreen keeps joystick, connection status, STOP, Wave Hand and Introduction onscreen. Exit Fullscreen leaves demo mode. If the browser denies fullscreen, a screen-filling in-page fallback is used.
 - Changing fullscreen, resizing, losing window focus, hiding the page and losing the link cancel motion. A stalled control loop also cancels motion.
-- Introduction displays: “Hi, I am Veera Bot. I am developed by Devaansh, Johnson, and Abhiram.” When connected it also sends the predefined `I` command. Uses similarly sends `U`.
+- **Introduction** is a simple connection-gated button that sends `I` once to the ESP32. It does not open a popup, contain an audio player, or generate speech. The ESP32 instructs the DFPlayer Mini to play the prerecorded Introduction MP3 from the DFPlayer Mini’s microSD card through the speaker.
+- **Uses** is informational, available even when disconnected. It sends no Uses/audio trigger. Opening its modal cancels motion with `S` for safety.
 - There is no custom speech editor, browser speech synthesis, voice upload or voice API.
+
+## Trigger-only hardware flow
+
+```text
+Introduction button -> Website sends I -> ESP32 -> DFPlayer Mini
+                    -> prerecorded Introduction MP3 on microSD -> Speaker
+
+Wave Hand button -> Website sends H:wave -> ESP32 -> Servo -> Wave movement
+```
+
+Store your prerecorded introduction on the DFPlayer Mini’s microSD card using the track naming/index convention configured in the ESP32 firmware. The MP3 is not stored, uploaded or played by the website. The website does not communicate directly with the DFPlayer Mini or servo.
+
+The wave request indicator briefly records that a trigger was requested; it is not servo feedback or a wave-duration controller. Logs show written commands, not confirmed motor movement or audio playback.
 
 ## Connect a physical robot — important
 
@@ -52,7 +66,7 @@ Test with wheels lifted and low power first. Keep a physical emergency stop acce
 
 ## Architecture
 
-- `src/control/RobotController.ts`: transport-independent differential mixer, ramping, stop, right-hand cooldown.
+- `src/control/RobotController.ts`: transport-independent differential mixer, ramping, stop, wave trigger/cooldown and Introduction trigger.
 - `src/control/CommandQueue.ts`: serialized BLE writes, latest-speed coalescing, prioritized stop, write timeout.
 - `src/hooks/useBluetooth.ts`: existing BLE service/characteristic connection, real status and logs.
 - `src/components/MovementControls.tsx`: pointer ownership, capture, cancel/release and keyboard input.
@@ -67,7 +81,7 @@ npm test
 npm run build
 ```
 
-Unit tests cover mixing, diagonal movement, ramping, reversal, immediate stop, heartbeats, cooldown, disconnect and queue priority/timeouts.
+Unit tests cover mixing, diagonal movement, ramping, reversal, immediate stop, heartbeats, cooldown, independent wave/introduction triggers, disconnected trigger rejection, single-action UI and queue priority/timeouts.
 
 Browser tests are included for desktop and Android-sized portrait/landscape layouts, Pointer Events multitouch, fullscreen, the fixed file-based logo and disconnect behavior:
 
@@ -77,4 +91,4 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-The production build and 22 unit tests passed during packaging. Browser tests could not run in the packaging environment because Chromium's system libraries were unavailable. Physical ESP32 behavior has not been tested.
+The production build and 28 unit tests passed during packaging. Browser tests could not run in the packaging environment because Chromium's system libraries were unavailable. Physical ESP32 behavior has not been tested.

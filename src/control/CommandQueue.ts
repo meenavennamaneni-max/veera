@@ -13,9 +13,8 @@ export class CommandQueue {
     if (this.closed) return;
     if (kind === 'stop') this.items = [];
     if (kind === 'motor') this.items = this.items.filter(i => i.kind !== 'motor');
-    if (kind === 'hand-stop') this.items = this.items.filter(i => i.kind !== 'hand' && i.kind !== 'hand-stop');
     const item = { payload, kind };
-    if (kind === 'stop' || kind === 'hand-stop') this.items.unshift(item);
+    if (kind === 'stop') this.items.unshift(item);
     else if (this.items.length < 8) this.items.push(item);
     void this.drain();
   }

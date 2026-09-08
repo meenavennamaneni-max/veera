@@ -43,10 +43,10 @@ for (const mode of ['normal', 'fallback'] as const) {
     if (mode === 'fallback') await page.evaluate(() => { Element.prototype.requestFullscreen = async () => { throw new Error('Not allowed'); }; });
     await expect(page.locator('.connection-badge')).toHaveText('Disconnected');
     await expect(page.getByRole('group', { name: 'Driving joystick' })).toHaveAttribute('aria-disabled', 'true');
-    await expect(page.getByRole('button', { name: 'Wave', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Wave Hand', exact: true })).toBeDisabled();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await demo(page);
-    for (const name of ['Emergency STOP', 'Exit Fullscreen', 'Wave', 'Stop right hand']) {
+    for (const name of ['Emergency STOP', 'Exit Fullscreen', 'Wave Hand', 'Introduction']) {
       const box = await page.getByRole('button', { name, exact: true }).boundingBox();
       expect(box).not.toBeNull();
       const viewport = page.viewportSize()!;
@@ -66,14 +66,14 @@ for (const mode of ['normal', 'fallback'] as const) {
 test('preserves predefined sections and file-based logo without visitor upload controls', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('veera-logo', 'data:image/png;base64,old-browser-override'));
   await page.goto('/');
-  await page.getByRole('button', { name: 'Introduction Meet Veera Bot' }).click();
-  await expect(page.getByRole('dialog')).toContainText('Hi, I am Veera Bot. I am developed by Devaansh, Johnson, and Abhiram.');
-  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Introduction', exact: true })).toBeDisabled();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^(Raise|Lower|Stop hand)$/i })).toHaveCount(0);
   await page.getByRole('button', { name: 'Uses Explore the possibilities' }).click();
   const text = await page.getByRole('dialog').innerText();
   for (const term of ['schools', 'colleges', 'science fairs', 'robotics events', 'exhibitions', 'museums', 'tourist places', 'public demonstrations', 'mobile device', 'customized']) expect(text.toLowerCase()).toContain(term);
   await page.getByRole('button', { name: 'Close uses', exact: true }).first().click();
-  await expect(page.locator('textarea')).toHaveCount(0);
+  await expect(page.locator('textarea, audio, input[type=\"file\"]')).toHaveCount(0);
   await expect(page.getByText('Developed By', { exact: false })).toContainText('Team DAJ');
   await expect(page.locator('.brand-logo')).toHaveAttribute('src', '/logo.png');
   await expect(page.locator('input[type="file"]')).toHaveCount(0);
@@ -115,7 +115,7 @@ test('real two-finger touch keeps joystick owner independent and emergency stop 
   await mockBLE(page); await page.goto('/'); await connect(page); await demo(page);
   const session = await page.context().newCDPSession(page);
   const box = (await page.locator('.joystick').boundingBox())!;
-  const hand = (await page.getByRole('button', { name: 'Wave', exact: true }).boundingBox())!;
+  const hand = (await page.getByRole('button', { name: 'Wave Hand', exact: true }).boundingBox())!;
   const stop = (await page.getByRole('button', { name: 'Emergency STOP' }).boundingBox())!;
   const finger1 = { id: 1, x: box.x + box.width * .5, y: box.y + box.height * .22 };
   const finger2 = { id: 2, x: hand.x + hand.width / 2, y: hand.y + hand.height / 2 };
@@ -131,6 +131,14 @@ test('real two-finger touch keeps joystick owner independent and emergency stop 
   await expect.poll(async () => Number(await page.getByTestId('left-speed').innerText())).toBeGreaterThan(0);
   expect(await page.getByTestId('left-speed').innerText()).toBe(await page.getByTestId('right-speed').innerText());
   expect(await page.evaluate(() => scrollY)).toBe(scroll);
+  const intro = (await page.getByRole('button', { name: 'Introduction', exact: true }).boundingBox())!;
+  const introFinger = { id: 4, x: intro.x + intro.width / 2, y: intro.y + intro.height / 2 };
+  await touch('touchStart', [finger1, introFinger]);
+  await touch('touchEnd', [finger1]);
+  await expect.poll(async () => (await writes(page)).filter(v => v === 'I').length).toBe(1);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect.poll(async () => Number(await page.getByTestId('left-speed').innerText())).toBeGreaterThan(0);
+  expect((await writes(page)).filter(v => v === 'H:wave\n')).toHaveLength(1);
   const emergencyFinger = { id: 3, x: stop.x + stop.width / 2, y: stop.y + stop.height / 2 };
   await touch('touchStart', [finger1, emergencyFinger]);
   await expect(page.getByTestId('left-speed')).toHaveText('0');
@@ -165,4 +173,27 @@ test('connection loss and write errors disable motion, never auto-resume', async
   await expect(page.locator('.connection-badge')).toHaveText('Disconnected');
   await expect(page.getByTestId('left-speed')).toHaveText('0');
   await page.keyboard.up('ArrowUp');
+});
+
+
+test('Introduction is one ESP32 trigger; Uses is informational; no web audio', async ({ page }) => {
+  await mockBLE(page);
+  await page.addInitScript(() => {
+    const w = window as any;
+    w.browserAudioCalls = 0;
+    w.Audio = function () { w.browserAudioCalls++; throw new Error('Browser audio is forbidden'); };
+    if (window.speechSynthesis) window.speechSynthesis.speak = () => { w.browserAudioCalls++; };
+  });
+  await page.goto('/'); await connect(page);
+  const intro = page.getByRole('button', { name: 'Introduction', exact: true });
+  await intro.click();
+  await expect.poll(async () => (await writes(page)).filter(v => v === 'I').length).toBe(1);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await intro.focus(); await page.keyboard.press('Enter');
+  await expect.poll(async () => (await writes(page)).filter(v => v === 'I').length).toBe(2);
+  await page.getByRole('button', { name: 'Uses Explore the possibilities' }).click();
+  await expect(page.getByRole('dialog', { name: 'Uses' })).toBeVisible();
+  expect((await writes(page)).filter(v => v === 'U')).toHaveLength(0);
+  expect((await writes(page)).filter(v => v === 'I')).toHaveLength(2);
+  expect(await page.evaluate(() => (window as any).browserAudioCalls)).toBe(0);
 });

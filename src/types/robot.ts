@@ -1,5 +1,4 @@
 export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
-export type RightHandAction = 'wave' | 'raise' | 'lower';
 export interface LogEntry {
   id: string;
   timestamp: Date;

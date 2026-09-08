@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { RobotController, type RobotTransport, ZERO } from '../control/RobotController';
-import type { RightHandAction } from '../types/robot';
 
 export function useRobotControl(transport: RobotTransport, connected: boolean) {
   const transportRef = useRef(transport);
@@ -10,14 +9,14 @@ export function useRobotControl(transport: RobotTransport, connected: boolean) {
     send: (payload, kind) => transportRef.current.send(payload, kind),
   }));
   const [speeds, setSpeeds] = useState(ZERO);
-  const [handActive, setHandActive] = useState(false);
+  const [waveRequested, setWaveRequested] = useState(false);
   const [cooldownUntil, setCooldownUntil] = useState(0);
   const [cooldownMs, setCooldownMs] = useState(500);
   const [stopVersion, setStopVersion] = useState(0);
   const stopRobot = useCallback(() => {
     controller.stopRobot();
     setSpeeds({ ...ZERO });
-    setHandActive(false);
+    setWaveRequested(false);
     setStopVersion(v => v + 1);
   }, [controller]);
 
@@ -30,7 +29,7 @@ export function useRobotControl(transport: RobotTransport, connected: boolean) {
       controller.tick(now - last);
       last = now;
       setSpeeds({ ...controller.current });
-      setHandActive(controller.handActive);
+      setWaveRequested(controller.waveRequested);
       setCooldownUntil(value => value && now >= value ? 0 : value);
     }, 50);
     return () => { clearInterval(timer); controller.stopRobot(); };
@@ -58,15 +57,15 @@ export function useRobotControl(transport: RobotTransport, connected: boolean) {
     };
   }, [stopRobot]);
 
-  return { speeds, handActive, cooldownUntil, cooldownMs, stopVersion, stopRobot,
+  return { speeds, waveRequested, cooldownUntil, cooldownMs, stopVersion, stopRobot,
     setJoystick: (x: number, y: number) => controller.setJoystick(x, y),
-    moveRightHand: (action: RightHandAction) => {
-      if (controller.moveRightHand(action)) {
-        setHandActive(true);
+    waveRightHand: () => {
+      if (controller.waveRightHand()) {
+        setWaveRequested(true);
         setCooldownUntil(performance.now() + controller.handCooldownMs);
       }
     },
-    stopRightHand: () => { controller.stopRightHand(); setHandActive(false); },
+    triggerIntroduction: () => { controller.triggerIntroduction(); },
     setCooldownMs: (ms: number) => {
       const safe = Math.max(200, Math.min(2000, Number.isFinite(ms) ? ms : 500));
       controller.handCooldownMs = safe;

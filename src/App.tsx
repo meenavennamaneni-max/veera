@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bot, Zap, Circle, Info, List, Maximize, Minimize, OctagonX, ShieldCheck, Radio, HandHeart } from 'lucide-react';
+import { Bot, Zap, Circle, List, Maximize, Minimize, OctagonX, ShieldCheck, Radio, HandHeart } from 'lucide-react';
 import { useBluetooth } from './hooks/useBluetooth';
 import { useRobotControl } from './hooks/useRobotControl';
 import { useControlFullscreen } from './hooks/useControlFullscreen';
@@ -9,7 +9,7 @@ import MovementControls from './components/MovementControls';
 import ActionButtons from './components/ActionButtons';
 import StatusPanel from './components/StatusPanel';
 import CommandLog from './components/CommandLog';
-import IntroPanel from './components/IntroPanel';
+import IntroductionButton from './components/IntroductionButton';
 import UsesPanel from './components/UsesPanel';
 import LogoBanner from './components/LogoBanner';
 import InfoDialog from './components/InfoDialog';
@@ -19,12 +19,12 @@ export default function App() {
   const isConnected = bluetooth.status === 'connected';
   const control = useRobotControl(bluetooth, isConnected);
   const demo = useControlFullscreen(control.stopRobot);
-  const [panel, setPanel] = useState<'intro' | 'uses' | null>(null);
+  const [showUses, setShowUses] = useState(false);
   const isMoving = control.speeds.left !== 0 || control.speeds.right !== 0;
-  const openPanel = (next: 'intro' | 'uses') => {
+  const openUses = () => {
+    // Opening an informational modal cancels motion for safety; it sends no audio/Uses trigger.
     control.stopRobot();
-    if (isConnected) bluetooth.send(next === 'intro' ? 'I' : 'U', 'action');
-    setPanel(next);
+    setShowUses(true);
   };
   const connection = <span role="status" className={`connection-badge ${isConnected ? 'connected' : bluetooth.status === 'connecting' ? 'connecting' : 'disconnected'}`}>
     <Circle size={9} fill="currentColor" />{isConnected ? 'Connected' : bluetooth.status === 'connecting' ? 'Connecting…' : 'Disconnected'}
@@ -75,7 +75,7 @@ export default function App() {
           <aside className="robot-sidebar space-y-5">
             <div className="glass-panel rounded-xl p-4 flex flex-col items-center panel-corners">
               <div className="section-heading w-full"><Bot size={17} /><h2>Veera Bot</h2><span className="heading-tag">{isConnected ? 'LINKED' : 'IDLE'}</span></div>
-              <RobotAvatar status={bluetooth.status} isMoving={isMoving} isHandMoving={control.handActive} />
+              <RobotAvatar status={bluetooth.status} isMoving={isMoving} waveRequested={control.waveRequested} />
               <p className="text-xs text-gray-500 font-mono mt-3">FOUR MOTORS / ONE RIGHT HAND</p>
             </div>
             <BluetoothPanel status={bluetooth.status} error={bluetooth.error} isBluetoothAvailable={bluetooth.isBluetoothAvailable}
@@ -96,38 +96,39 @@ export default function App() {
                   <button className="emergency-stop" aria-label="Emergency STOP"
                     onPointerDown={e => { if (e.button !== 0) return; e.preventDefault(); control.stopRobot(); }}
                     onClick={e => { if (e.detail === 0) control.stopRobot(); }}><OctagonX size={32} /><span>STOP<small>EMERGENCY · ALL MOTION</small></span></button>
-                  <ActionButtons isConnected={isConnected} isHandMoving={control.handActive} cooldownMs={control.cooldownMs} coolingDown={!!control.cooldownUntil}
-                    onCooldownChange={control.setCooldownMs} onHandMovement={control.moveRightHand} onStopHand={control.stopRightHand} />
+                  <ActionButtons isConnected={isConnected} waveRequested={control.waveRequested} cooldownMs={control.cooldownMs} coolingDown={!!control.cooldownUntil}
+                    onCooldownChange={control.setCooldownMs} onWaveHand={control.waveRightHand} />
+                  <IntroductionButton isConnected={isConnected} onIntroduction={control.triggerIntroduction} />
                   <div className="safety-note"><ShieldCheck size={17} /><p>Release to stop. Use a second finger for the right hand or emergency stop.</p></div>
                 </div>
               </div>
               <div className="control-navigation">
-                <button onClick={() => openPanel('intro')}><Info size={18} /><span>Introduction<small>Meet Veera Bot</small></span></button>
-                <button onClick={() => openPanel('uses')}><List size={18} /><span>Uses<small>Explore the possibilities</small></span></button>
+                <button onClick={openUses}><List size={18} /><span>Uses<small>Explore the possibilities</small></span></button>
                 <span className="touch-hint">MULTITOUCH READY</span>
               </div>
-              {panel && <InfoDialog label={panel === 'intro' ? 'Introduction' : 'Uses'} onClose={() => setPanel(null)}>
-                {panel === 'intro' ? <IntroPanel onClose={() => setPanel(null)} /> : <UsesPanel onClose={() => setPanel(null)} />}
+              {showUses && <InfoDialog label="Uses" onClose={() => setShowUses(false)}>
+                <UsesPanel onClose={() => setShowUses(false)} />
               </InfoDialog>}
             </section>
             <CommandLog logs={bluetooth.logs} onClear={bluetooth.clearLogs} />
           </div>
 
           <aside className="status-sidebar space-y-5">
-            <StatusPanel status={bluetooth.status} isMoving={isMoving} isHandMoving={control.handActive} lastCommand={bluetooth.lastCommand} commandCount={bluetooth.commandCount} />
+            <StatusPanel status={bluetooth.status} isMoving={isMoving} waveRequested={control.waveRequested} lastCommand={bluetooth.lastCommand} commandCount={bluetooth.commandCount} />
             <div className="glass-panel rounded-xl p-4">
               <div className="section-heading"><ShieldCheck size={17} /><h2>Quick Guide</h2></div>
               <ol className="quick-guide">
                 <li>Connect Veera Bot using Chrome or Edge over HTTPS.</li>
                 <li>Drag the joystick. Distance controls speed; left and right steer both motor pairs independently.</li>
                 <li>Release to stop immediately. STOP also cancels the right hand.</li>
+                <li>Introduction triggers the prerecorded MP3 on the DFPlayer Mini. Wave Hand triggers the ESP32 servo routine.</li>
                 <li>Use Fullscreen for a distraction-free demonstration.</li>
               </ol>
             </div>
             <div className="glass-panel rounded-xl p-4">
               <div className="section-heading"><Radio size={17} /><h2>ESP32 Commands</h2></div>
               <dl className="command-reference">
-                {[['M:L,R', 'Signed motor PWM'], ['S', 'Stop all motion'], ['H:action', 'Right hand only'], ['H:stop', 'Stop right hand'], ['I / U', 'Predefined intro / uses']].map(([cmd, desc]) => <div key={cmd}><dt>{cmd}</dt><dd>{desc}</dd></div>)}
+                {[['M:L,R', 'Signed motor PWM'], ['S', 'Stop all motion'], ['H:wave', 'ESP32 servo wave'], ['I', 'DFPlayer MP3 trigger']].map(([cmd, desc]) => <div key={cmd}><dt>{cmd}</dt><dd>{desc}</dd></div>)}
               </dl>
               <p className="text-xs text-gray-500 mt-3">Requires compatible firmware. Motor commands are not the original F/B/L/R bytes.</p>
             </div>

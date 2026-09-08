@@ -6,7 +6,7 @@ interface UsesPanelProps {
 
 const capabilities = [
   { icon: Move, title: 'Precision driving', desc: 'Four motors, differential steering, smooth acceleration and immediate stop on joystick release.', color: 'border-yellow-500/30 bg-yellow-500/5', tag: 'DRIVE', tagColor: 'text-yellow-400' },
-  { icon: Hand, title: 'Right-hand gestures', desc: 'A single robotic right hand for waves and interactive demonstrations, with a configurable cooldown.', color: 'border-orange-500/30 bg-orange-500/5', tag: 'HAND', tagColor: 'text-orange-400' },
+  { icon: Hand, title: 'Right-hand wave', desc: 'A single Wave Hand button triggers the ESP32 to control the right-hand servo for interactive demonstrations.', color: 'border-orange-500/30 bg-orange-500/5', tag: 'HAND', tagColor: 'text-orange-400' },
   { icon: Radio, title: 'Mobile control', desc: 'Control Veera Bot from a compatible mobile device, tablet or computer over an ESP32 Bluetooth connection.', color: 'border-cyan-500/30 bg-cyan-500/5', tag: 'BLE', tagColor: 'text-cyan-400' },
   { icon: GraduationCap, title: 'Learning & discovery', desc: 'Bring robotics to life in schools, colleges, science fairs and robotics events through hands-on STEM demonstrations.', color: 'border-blue-500/30 bg-blue-500/5', tag: 'LEARN', tagColor: 'text-blue-400' },
   { icon: MapPin, title: 'Meet an audience', desc: 'Interactive experiences for exhibitions, museums, tourist places and public demonstrations.', color: 'border-purple-500/30 bg-purple-500/5', tag: 'DEMO', tagColor: 'text-purple-400' },

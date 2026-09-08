@@ -5,7 +5,7 @@ import type { ConnectionStatus } from '../types/robot';
 interface StatusPanelProps {
   status: ConnectionStatus;
   isMoving: boolean;
-  isHandMoving: boolean;
+  waveRequested: boolean;
   lastCommand: string;
   commandCount: number;
 }
@@ -22,7 +22,7 @@ function formatUptime(seconds: number): string {
 export default function StatusPanel({
   status,
   isMoving,
-  isHandMoving,
+  waveRequested,
   lastCommand,
   commandCount,
 }: StatusPanelProps) {
@@ -47,7 +47,7 @@ export default function StatusPanel({
 
   const activities = [
     { label: 'MOVING', active: isMoving, color: 'text-yellow-400', dot: 'bg-yellow-400' },
-    { label: 'RIGHT HAND', active: isHandMoving, color: 'text-orange-400', dot: 'bg-orange-400' },
+    { label: 'WAVE REQUEST', active: waveRequested, color: 'text-orange-400', dot: 'bg-orange-400' },
   ];
 
   return (

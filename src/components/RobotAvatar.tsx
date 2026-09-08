@@ -4,10 +4,10 @@ import type { ConnectionStatus } from '../types/robot';
 interface RobotAvatarProps {
   status: ConnectionStatus;
   isMoving: boolean;
-  isHandMoving: boolean;
+  waveRequested: boolean;
 }
 
-export default function RobotAvatar({ status, isMoving, isHandMoving }: RobotAvatarProps) {
+export default function RobotAvatar({ status, isMoving, waveRequested }: RobotAvatarProps) {
   const isConnected = status === 'connected';
   const eyeColor = isConnected ? '#FFD700' : '#444';
   const bodyGlow = isConnected ? 'drop-shadow(0 0 12px rgba(255,215,0,0.5))' : 'drop-shadow(0 0 4px rgba(80,80,80,0.3))';
@@ -140,7 +140,7 @@ export default function RobotAvatar({ status, isMoving, isHandMoving }: RobotAva
               VEERA BOT
             </text>
             <text x="80" y="158" textAnchor="middle" fill="#00ff88" fontSize="5.5" fontFamily="monospace">
-              {isMoving ? 'MOVING...' : isHandMoving ? 'RIGHT HAND' : 'STANDBY'}
+              {isMoving ? 'MOVING...' : waveRequested ? 'WAVE REQUEST' : 'STANDBY'}
             </text>
             {/* Mini bar graph */}
             {[0, 1, 2, 3, 4].map((i) => (
@@ -201,7 +201,7 @@ export default function RobotAvatar({ status, isMoving, isHandMoving }: RobotAva
             height="14"
             rx="4"
             fill="#1a1a2e"
-            stroke={isHandMoving && isConnected ? '#FFD700' : '#444'}
+            stroke={waveRequested && isConnected ? '#FFD700' : '#444'}
             strokeWidth="1.5"
           />
           {/* Fingers hint */}
@@ -232,8 +232,8 @@ export default function RobotAvatar({ status, isMoving, isHandMoving }: RobotAva
         {isConnected
           ? isMoving
             ? 'MOVING'
-            : isHandMoving
-            ? 'RIGHT HAND'
+            : waveRequested
+            ? 'WAVE REQUEST'
             : 'STANDBY'
           : 'OFFLINE'}
       </div>
