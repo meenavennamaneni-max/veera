@@ -1,0 +1,14 @@
+# Netlify configuration
+# Static site — the site lives in the `public/` folder.
+# Deploy with Netlify: set "Publish directory" to `public` (or let Netlify
+# read this file automatically when you connect the repo).
+
+[build]
+  publish = "public"
+
+# Clean URL for the presentation page (Netlify already serves
+# /presentation/index.html at /presentation; this makes it explicit).
+[[redirects]]
+  from = "/presentation"
+  to = "/presentation/index.html"
+  status = 200
