@@ -1,0 +1,22 @@
+# Cloudflare Worker configuration for Dev's Personal AI.
+name = "devs-personal-ai"
+main = "src/index.js"
+compatibility_date = "2026-09-30"
+
+# D1 binding used as the optional message index cache.
+# Create the database first:
+#   npx wrangler d1 create devs-personal-ai
+# Then paste the printed database_id below.
+[[d1_databases]]
+binding = "DB"
+database_name = "devs-personal-ai"
+database_id = "<YOUR_D1_DATABASE_ID>"
+
+# Runtime logs help with rate-limit and permission debugging.
+[observability]
+enabled = true
+
+# Secrets are NOT set here. Configure them with:
+#   npx wrangler secret put DISCORD_PUBLIC_KEY
+#   npx wrangler secret put DISCORD_BOT_TOKEN
+# For local development put them in .dev.vars (see .dev.vars.example).

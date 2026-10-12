@@ -1,0 +1,15 @@
+# Local development secrets for Dev's Personal AI.
+# Copy this file to .dev.vars and fill in real values.
+# .dev.vars is gitignored — never commit real credentials.
+
+# Discord application public key (Developer Portal -> General Information).
+DISCORD_PUBLIC_KEY=
+
+# Discord bot token (Developer Portal -> Bot -> Reset Token). Store in
+# production as a Cloudflare secret: npx wrangler secret put DISCORD_BOT_TOKEN
+DISCORD_BOT_TOKEN=
+
+# Used by scripts/register-commands.js and scripts/index-messages.js only.
+DISCORD_APPLICATION_ID=
+# Optional: register guild-scoped commands (instant) instead of global ones.
+DISCORD_GUILD_ID=

@@ -1,0 +1,22 @@
+{
+  "name": "devs-personal-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dev's Personal AI — a Discord bot on Cloudflare Workers using HTTP Interactions and JavaScript retrieval (no AI model).",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test \"tests/*.test.js\"",
+    "register": "node scripts/register-commands.js",
+    "index-messages": "node scripts/index-messages.js",
+    "migrations:local": "wrangler d1 migrations apply devs-personal-ai --local",
+    "migrations:remote": "wrangler d1 migrations apply devs-personal-ai --remote"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "wrangler": "^4.149.0"
+  }
+}

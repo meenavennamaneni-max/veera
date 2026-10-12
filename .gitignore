@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Wrangler / Cloudflare local state
+.wrangler/
+.dev.vars
+
+# Build output
+dist/
+
+# Generated index SQL (local artifact of scripts/index-messages.js)
+d1-index.sql
+
+# Logs and OS files
+*.log
+.DS_Store
